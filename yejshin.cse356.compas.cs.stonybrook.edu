@@ -1,0 +1,20 @@
+server {
+    location / {
+        return 301 /hw0.html;
+    }
+
+    location /hw0.html {
+        root html;
+        index hw0.html;
+    }
+
+    location /image/andrew-schultz-DTSDD968Mpw-unsplash.jpg {
+        root html/image;
+        index andrew-schultz-DTSDD968Mpw-unsplash.jpg;
+    }
+
+    location /hw1.yml {
+        root /root
+        
+    }
+}
