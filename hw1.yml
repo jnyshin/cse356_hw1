@@ -1,0 +1,94 @@
+---
+- name: CSE 356 HW1
+  hosts: all
+  become: yes
+  become_method: sudo
+  vars:
+    server_name: 209.94.59.115
+  tasks:
+    - name: Update and Install Nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+
+    - name: Clone Repository 
+      git:
+        repo: https://github.com/jnyshin/cse356_hw1
+        dest: /var/repo
+    
+    - name: Overwrite nginx.conf
+      ansible.builtin.copy:
+        src: /var/repo/hw1-nginx.conf
+        dest: /etc/nginx/nginx.conf
+        follow: yes
+
+    - name: Add yejshin/../.edu server to nginx
+      ansible.builtin.copy: 
+        src: /var/repo/yejshin.cse356.compas.cs.stonybrook.edu.conf
+        dest: /etc/nginx/conf.d/yejshin.cse356.compas.cs.stonybrook.edu.conf
+        follow: yes
+
+    # - name: Create /etc/nginx/html directory
+    #   ansible.builtin.file:
+    #     path: /etc/nginx/html
+    #     state: directory
+    #     mode: '0755'
+
+    - name: move hw0.html to /var/www/html
+      ansible.builtin.copy: 
+        src: /var/repo/hw0.html
+        dest: /var/www/html/hw0.html
+        follow: yes
+
+    - name: move image to /var/www/html/
+      ansible.builtin.copy: 
+        src: /var/repo/andrew-schultz-DTSDD968Mpw-unsplash.jpg
+        dest: /var/www/html/andrew-schultz-DTSDD968Mpw-unsplash.jpg
+        follow: yes
+
+    - name: Add yejshin/../.edu to available sites
+      ansible.builtin.copy: 
+        src: /var/repo/yejshin.cse356.compas.cs.stonybrook.edu
+        dest: /etc/nginx/sites-available/default
+        follow: yes
+
+    - name: Enable site
+      file:
+        src: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+      notify: reload nginx
+    
+    - name: Start nginx
+      community.general.ufw:
+        rule: allow 
+        port: '80'
+        proto: tcp
+
+  handlers:
+  - name: reload nginx
+    service:
+      name: nginx
+      state: restarted
+
+
+    # - name: Install Node
+    #   apt:
+    #     name: nodejs
+
+    # - name: Install npm
+    #   apt:
+    #     name: npm
+
+    # - name: Run the npm project
+    #   shell: "npm start"
+    #   args:
+    #     chdir: "/root/repos"
+    #sudo apt update
+    #sudo apt install nginx
+    #sudo systemctl status nginx
+
+    #default location is root /var/www/html. among here, index.html and other files are selected. 
+    #route pages with location / {}
+    
